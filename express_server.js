@@ -18,6 +18,14 @@ app.get('/urls', (req, res) => {
   res.render("urls_index", templateVars)
 })
 
+app.get('/urls/:shortURL', (req, res) => {
+  const shortURL = req.params.shortURL;
+  const templateVars = { shortURL, longURL: urlDatabase[shortURL]}
+  //we are acessing the sort url as a param due to the colon in the URl
+  //for the long url we are using the short url as the key in urlDatabase
+  res.render("urls_show", templateVars)
+})
+
 app.get('/hello', (req, res) => {
   res.send('<html><body>Hello <b>World<b></body></html>\n')
 })
