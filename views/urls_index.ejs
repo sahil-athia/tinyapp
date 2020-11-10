@@ -11,12 +11,20 @@
         border-color: red;
         border-radius: 8px;
         border-width: 3px;
-        color: red;
-        padding: 10px 25px;
-        text-align: center;
-        font-size: 16px;
-        margin: 4px 2px;
+        color: #ff0000e3;
+        padding: 8px 20px;
+        font-size: 20px;
         cursor: pointer;
+      }
+
+      .button1 {
+      background-color:white;
+      border-color: #0062ff;
+      border-radius: 8px;
+      color: #0062ff;
+      padding: 8px 20px;
+      font-size: 20px;
+      cursor: pointer;
       }
       </style>
     <title> Tiny App </title>
@@ -30,8 +38,8 @@
           <tr>
             <th scope = "col">Short URL</th>
             <th scope = "col">Long URL</th>
-            <th scope = "col">Delete</th>
             <th scope = "col">Edit</th>
+            <th scope = "col">Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -39,14 +47,17 @@
             <tr>
               <td><%= url %></td>
               <td><%= urls[url] %></td>
+              <td><form method="POST" action="/urls/<%= url %>">
+                <button class="button1">
+                  Edit URL
+                </button>
+              </form>
+              </td>
               <td><form method="POST" action="/urls/<%= url %>/delete">
                     <button class = "button">
                       Delete
                     </button>
                   </form>
-              </td>
-              <td>
-                <a href="/urls/<%= url %>"> Edit URL </a>
               </td>
             </tr>
           <% } %>

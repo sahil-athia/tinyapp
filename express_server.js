@@ -20,7 +20,6 @@ app.get('/', (req, res) => {
 })
 
 app.post('/urls', (req, res) => {
-  console.log(req.body)
   const shortURL = generateRandomString()  
   urlDatabase[shortURL] = req.body.longURL
   res.redirect(`/urls/${shortURL}`)
@@ -52,6 +51,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL]
 
   res.redirect("/urls")
+})
+
+app.post("/urls/:id", (req, res) => {
+  res.redirect(`/urls/${req.params.id}`)
 })
 
 app.listen(PORT, () => {
