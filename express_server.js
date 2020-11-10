@@ -18,8 +18,11 @@ const urlDatabase = {
 }
 
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username)
-  res.redirect("urls")
+  res.cookie('username', req.body.username);
+  if (!req.body.username) {
+    res.clearCookie('username');
+  }
+  res.redirect("urls");
 })
 
 app.get('/', (req, res) => {
@@ -42,7 +45,6 @@ app.get('/urls/new', (req, res) => {
 })
 
 app.post("/urls/:id", (req, res) => {
-  console.log(req.params.id);
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect("/urls");
 })
