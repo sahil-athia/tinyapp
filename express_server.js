@@ -33,6 +33,13 @@ app.get('/urls/new', (req, res) => {
   res.render("urls_new")
 })
 
+app.post("/urls/:id", (req, res) => {
+  console.log(req.params.id);
+  // console.log(req.body.longURL);
+  urlDatabase[req.params.id] = req.body.longURL;
+  res.redirect("/urls");
+})
+
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]
   res.redirect(longURL);
@@ -47,14 +54,10 @@ app.get('/urls/:shortURL', (req, res) => {
 })
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  console.log(urlDatabase[req.params.shortURL])
+  // console.log(urlDatabase[req.params.shortURL])
   delete urlDatabase[req.params.shortURL]
 
   res.redirect("/urls")
-})
-
-app.post("/urls/:id", (req, res) => {
-  res.redirect(`/urls/${req.params.id}`)
 })
 
 app.listen(PORT, () => {
