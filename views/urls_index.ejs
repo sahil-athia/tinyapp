@@ -27,7 +27,11 @@
             <tr>
               <td><%= url %></td>
               <td><%= urls[url].longURL %></td>
-              <td><%= urls[url].userID %></td>
+              <% if(user) { %> 
+              <td><%= user.id %></td>
+              <% } else { %> 
+              <td>Login for ID</td>
+              <% } %> 
               <td><form method="GET" action="/urls/<%= url %>">
                 <button class="btn btn-outline-primary">
                   Edit URL
