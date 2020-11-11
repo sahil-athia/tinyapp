@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap CSS -->  
+  <link rel="stylesheet" href = "https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <title> Registration </title>
+</head>
+<body>
+  <form class = "form-inline" method="POST" action="/register">
+    <div class="container">
+      <h2> Register </h2>
+      <p> Fill in the following from to create an account</p>
+      <hr>
+
+      <label for="email" style="text-align: left;"><b>Email</b></label>
+      <input type="email" name="email" placeholder="Enter email:">
+
+      <label for="password" style="text-align: left;"><b>Password</b></label>
+      <input  type="password" name="password" placeholder="Enter password:">
+      <hr>
+      <button type="submit">
+        Submit
+      </button>
+    </div>
+  </form>
+
+</body>
+</html>

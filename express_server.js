@@ -17,6 +17,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 }
 
+app.get('/', (req, res) => {
+  res.send('Hello!')
+})
+
+app.get('/urls', (req, res) => {
+  const templateVars = { urls: urlDatabase, username: req.cookies.username}
+  res.render("urls_index", templateVars)
+})
+
+app.get('/register', (req, res) => {
+  res.render('urls_register')
+})
+
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);
   if (!req.body.username) {
@@ -25,20 +38,13 @@ app.post('/login', (req, res) => {
   res.redirect("urls");
 })
 
-app.get('/', (req, res) => {
-  res.send('Hello!')
-})
-
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString()  
   urlDatabase[shortURL] = req.body.longURL
   res.redirect(`/urls/${shortURL}`)
 })
 
-app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies.username}
-  res.render("urls_index", templateVars)
-})
+
 app.get('/urls/new', (req, res) => {
   const templateVars = {username: req.cookies.username}
   res.render("urls_new", templateVars)
