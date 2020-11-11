@@ -38,10 +38,12 @@ app.get('/', (req, res) => {
 })
 
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies.username}
+  const user = users[req.cookies.user_id]
+  const templateVars = { urls: urlDatabase, user,}
   res.render("urls_index", templateVars)
 })
 
+// REGISTER page
 app.get('/register', (req, res) => {
   res.render('urls_register')
 })
@@ -51,14 +53,13 @@ app.post('/register', (req, res) => {
   const {email, password} = req.body
   users[id] = { id, email, password }
   res.cookie("user_id", id)
-  console.log(users[id])
   res.redirect('/urls')
 })
 
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
+  res.cookie('user_id', req.body.user_id);
   if (!req.body.username) {
-    res.clearCookie('username');
+    res.clearCookie('user_id');
   }
   res.redirect("urls");
 })
@@ -71,7 +72,8 @@ app.post('/urls', (req, res) => {
 
 
 app.get('/urls/new', (req, res) => {
-  const templateVars = {username: req.cookies.username}
+  const user = users[req.cookies.user_id]
+  const templateVars = { user }
   res.render("urls_new", templateVars)
 })
 
@@ -86,8 +88,9 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
+  const user = users[req.cookies.user_id]
   const shortURL = req.params.shortURL;
-  const templateVars = { shortURL, longURL: urlDatabase[shortURL], username: req.cookies.username}
+  const templateVars = { shortURL, longURL: urlDatabase[shortURL], user,}
   //we are acessing the sort url as a param due to the colon in the URl
   //for the long url we are using the short url as the key in urlDatabase
   res.render("urls_show", templateVars)
