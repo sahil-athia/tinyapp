@@ -4,9 +4,18 @@ const bodyParser = require('body-parser')
 const app = express();
 const PORT  = 8080;
 
-let generateRandomString =  () => {
+const generateRandomString =  () => {
   return Math.random().toString(36).substring(7);
 };
+
+const checkEmail = (db, userEmail) => {
+  for (const user in db){
+    if (db[user].email === userEmail) {
+      return true
+    }
+  }
+  return false
+}
 
 const users = { 
   "userRandomID": {
@@ -43,7 +52,8 @@ app.get('/urls', (req, res) => {
   res.render("urls_index", templateVars)
 })
 
-// REGISTER page
+// REGISTER____________________________________________________________________________________________________
+
 app.get('/register', (req, res) => {
   res.render('urls_register')
 })
@@ -51,10 +61,15 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const id = generateRandomString()
   const {email, password} = req.body
+  if (!email || !password || checkEmail(users, email)) {
+    res.send('Error: 400')
+  }
   users[id] = { id, email, password }
   res.cookie("user_id", id)
   res.redirect('/urls')
 })
+
+//____________________________________________________________________________________________________________
 
 app.post('/login', (req, res) => {
   res.cookie('user_id', req.body.user_id);
