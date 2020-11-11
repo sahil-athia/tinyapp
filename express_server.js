@@ -17,6 +17,16 @@ const checkEmail = (db, userEmail) => {
   return false
 }
 
+const getUser = (db, userEmail) => {
+  for (const user in db) {
+    if (db[user].email === userEmail) {
+      return db[user]
+    }
+  }
+}
+
+
+
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
@@ -46,10 +56,20 @@ app.get('/', (req, res) => {
   res.send('Hello!')
 })
 
+// URLS_HOMEPAGE____________________________________________________________________________________________________
+
 app.get('/urls', (req, res) => {
   const user = users[req.cookies.user_id]
-  const templateVars = { urls: urlDatabase, user,}
+  console.log(req.cookies.user_id)
+  // console.log(user)
+  const templateVars = { urls: urlDatabase, user}
   res.render("urls_index", templateVars)
+})
+
+app.post('/urls', (req, res) => {
+  const shortURL = generateRandomString()  
+  urlDatabase[shortURL] = req.body.longURL
+  res.redirect(`/urls/${shortURL}`)
 })
 
 // REGISTER____________________________________________________________________________________________________
@@ -69,21 +89,27 @@ app.post('/register', (req, res) => {
   res.redirect('/urls')
 })
 
-//____________________________________________________________________________________________________________
+// LOGIN_______________________________________________________________________________________________________
+
+app.get('/login', (req, res) => {
+  const user = users[req.cookies.user_id]
+  const templateVars = { user }
+  res.render("urls_login", templateVars)
+})
 
 app.post('/login', (req, res) => {
-  res.cookie('user_id', req.body.user_id);
-  if (!req.body.username) {
-    res.clearCookie('user_id');
+  if (checkEmail(users, req.body.email)) {
+    const user = getUser(users, req.body.email)
+    res.cookie('user_id', user.id);
   }
+  // if (!req.body.user_id) {
+  //   res.clearCookie('user_id');
+  // }
   res.redirect("urls");
 })
 
-app.post('/urls', (req, res) => {
-  const shortURL = generateRandomString()  
-  urlDatabase[shortURL] = req.body.longURL
-  res.redirect(`/urls/${shortURL}`)
-})
+
+//____________________________________________________________________________________________________________
 
 
 app.get('/urls/new', (req, res) => {
