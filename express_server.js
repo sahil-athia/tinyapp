@@ -1,41 +1,9 @@
 const express = require('express');
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
+const { userExist, userLogin, generateRandomString } = require('./helpers')
 const app = express();
 const PORT  = 8080;
-
-const generateRandomString =  () => {
-  return Math.random().toString(36).substring(7);
-};
-
-const checkEmail = (db, userEmail) => {
-  for (const user in db){
-    if (db[user].email === userEmail) {
-      return true
-    }
-  }
-  return false
-}
-
-const getUser = (db, userEmail) => {
-  for (const user in db) {
-    if (db[user].email === userEmail) {
-      return db[user]
-    }
-  }
-}
-
-const userExist = (db, userEmail) => {
-  for (const user in db) {
-    if (db[user].email === userEmail) {
-      let profile = db[user]
-      return { error: null, profile }
-    }
-  }
-  return { error: 'email', user: null }
-}
-
-
 
 const users = { 
   "userRandomID": {
@@ -70,8 +38,6 @@ app.get('/', (req, res) => {
 
 app.get('/urls', (req, res) => {
   const user = users[req.cookies.user_id]
-  console.log(req.cookies.user_id)
-  // console.log(user)
   const templateVars = { urls: urlDatabase, user}
   res.render("urls_index", templateVars)
 })
@@ -85,7 +51,9 @@ app.post('/urls', (req, res) => {
 // REGISTER____________________________________________________________________________________________________
 
 app.get('/register', (req, res) => {
-  res.render('urls_register')
+  const user = users[req.cookies.user_id]
+  const templateVars = { user }
+  res.render('urls_register', templateVars)
 })
 
 app.post('/register', (req, res) => {
@@ -111,17 +79,23 @@ app.get('/login', (req, res) => {
 })
 
 app.post('/login', (req, res) => {
+  const {email, password} = req.body
+  const valid = userLogin(users, email, password)
 
-  if (checkEmail(users, req.body.email)) {
-    const user = getUser(users, req.body.email)
-    res.cookie('user_id', user.id);
+  if(valid.error) {
+    res.send(valid.error)
+  } else {
+    res.cookie('user_id', valid.profile.id);
+    res.redirect("urls")
   }
-  // if (!req.body.user_id) {
-  //   res.clearCookie('user_id');
-  // }
-  res.redirect("urls");
 })
 
+// LOGOUT______________________________________________________________________________________________________
+
+app.get('/logout', (req, res) => {
+  res.clearCookie('user_id')
+  res.redirect("urls")
+})
 
 //____________________________________________________________________________________________________________
 
