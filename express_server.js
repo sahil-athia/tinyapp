@@ -25,6 +25,16 @@ const getUser = (db, userEmail) => {
   }
 }
 
+const userExist = (db, userEmail) => {
+  for (const user in db) {
+    if (db[user].email === userEmail) {
+      let profile = db[user]
+      return { error: null, profile }
+    }
+  }
+  return { error: 'email', user: null }
+}
+
 
 
 const users = { 
@@ -81,11 +91,14 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const id = generateRandomString()
   const {email, password} = req.body
-  if (!email || !password || checkEmail(users, email)) {
+  const validUser = userExist(users, email)
+  if (!email || !password || !validUser.error) {
+    // if the register template is empty in either fields or email exists, throw 400
     res.send('Error: 400')
+  } else {
+    users[id] = { id, email, password }
+    res.cookie("user_id", id)
   }
-  users[id] = { id, email, password }
-  res.cookie("user_id", id)
   res.redirect('/urls')
 })
 
@@ -98,6 +111,7 @@ app.get('/login', (req, res) => {
 })
 
 app.post('/login', (req, res) => {
+
   if (checkEmail(users, req.body.email)) {
     const user = getUser(users, req.body.email)
     res.cookie('user_id', user.id);
