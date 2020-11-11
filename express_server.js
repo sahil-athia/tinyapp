@@ -3,19 +3,35 @@ const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const app = express();
 const PORT  = 8080;
+
+let generateRandomString =  () => {
+  return Math.random().toString(36).substring(7);
+};
+
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
+const urlDatabase = {
+ "b2xVn2": "http://www.lighthouselabs.ca",
+ "9sm5xK": "http://www.google.com"
+}
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
 
 app.set("view engine", "ejs")
 
-let generateRandomString =  () => {
-   return Math.random().toString(36).substring(7);
-};
 
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-}
 
 app.get('/', (req, res) => {
   res.send('Hello!')
@@ -28,6 +44,15 @@ app.get('/urls', (req, res) => {
 
 app.get('/register', (req, res) => {
   res.render('urls_register')
+})
+
+app.post('/register', (req, res) => {
+  const id = generateRandomString()
+  const {email, password} = req.body
+  users[id] = { id, email, password }
+  res.cookie("user_id", id)
+  console.log(users[id])
+  res.redirect('/urls')
 })
 
 app.post('/login', (req, res) => {
