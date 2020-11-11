@@ -4,17 +4,6 @@
   <!-- Bootstrap CSS -->  
   <link rel="stylesheet" href = "https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>URL - TinyApp Example</title>
-  <style>
-    .button {
-      background-color:#0062ff;
-      border: transparent;
-      border-radius: 8px;
-      color: white;
-      padding: 10px 25px;
-      font-size: 20px;
-      cursor: pointer;
-    }
-    </style>
 </head>
 
 <body>
@@ -29,7 +18,7 @@
         <form action="/urls/<%= shortURL %>" method="POST">
           New URL
           <input type="text" name="longURL">
-          <button class="button" type="submit">
+          <button class="btn btn-primary" type="submit">
             Submit
           </button>
         </form>

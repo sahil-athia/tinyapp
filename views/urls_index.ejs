@@ -5,30 +5,9 @@
     <meta name = "viewport" content = "width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Bootstrap CSS -->
     <link rel = "stylesheet" href = "https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity = "sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin = "anonymous">
-    <style>
-      .button {
-        background-color: white;
-        border-color: red;
-        border-radius: 8px;
-        border-width: 3px;
-        color: #ff0000e3;
-        padding: 8px 20px;
-        font-size: 20px;
-        cursor: pointer;
-      }
-
-      .button1 {
-      background-color:white;
-      border-color: #0062ff;
-      border-radius: 8px;
-      color: #0062ff;
-      padding: 8px 20px;
-      font-size: 20px;
-      cursor: pointer;
-      }
-      </style>
     <title> Tiny App </title>
   </head>
+  
   <body>
     <%- include('partials/_header') %>
     <main style = "margin: 1em">
@@ -48,13 +27,13 @@
               <td><%= url %></td>
               <td><%= urls[url] %></td>
               <td><form method="GET" action="/urls/<%= url %>">
-                <button class="button1">
+                <button class="btn btn-outline-primary">
                   Edit URL
                 </button>
               </form>
               </td>
               <td><form method="POST" action="/urls/<%= url %>/delete">
-                    <button class = "button">
+                    <button class="btn btn-outline-danger">
                       Delete
                     </button>
                   </form>
