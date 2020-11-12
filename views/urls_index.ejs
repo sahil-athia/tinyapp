@@ -23,15 +23,12 @@
           </tr>
         </thead>
         <tbody>
-          <% for(let url in urls) { %>
+          <% if(user) { %> 
+          <% for(let url in ownId) { %>
             <tr>
               <td><%= url %></td>
-              <td><%= urls[url].longURL %></td>
-              <% if(user) { %> 
-              <td><%= user.id %></td>
-              <% } else { %> 
-              <td>Login for ID</td>
-              <% } %> 
+              <td><%= ownId[url].longURL %></td>
+              <td><%= ownId[url].userID %></td>
               <td><form method="GET" action="/urls/<%= url %>">
                 <button class="btn btn-outline-primary">
                   Edit URL
@@ -46,6 +43,9 @@
               </td>
             </tr>
           <% } %>
+          <% } else { %> 
+          <h3>Please login or register to view urls</h3>  
+          <% } %> 
         </tbody>
       </table>
     </main>

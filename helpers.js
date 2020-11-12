@@ -26,4 +26,16 @@ const userExist = (db, userEmail) => {
   return { error: 'email', user: null }
 }
 
-module.exports = { userExist, userLogin, generateRandomString }
+const urlsForUser = (db, id) => {
+  let matchingUrls = {}
+  if (id){
+    for (let urls in db) {
+      if (db[urls].userID === id['id']) {
+        matchingUrls[urls] = db[urls]
+      }
+    }
+    return matchingUrls
+  }  
+}
+
+module.exports = { userExist, userLogin, generateRandomString, urlsForUser }
