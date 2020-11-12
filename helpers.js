@@ -1,19 +1,22 @@
+const bcrypt = require('bcrypt')
+
 const generateRandomString =  () => {
   return Math.random().toString(36).substring(7);
 };
 
 const userLogin = (db, userEmail, userPassword) => {
+  // userPassword is not hashed
   for (const user in db) {
     if (db[user].email === userEmail) {
-      if (db[user].password === userPassword) {
+      if (bcrypt.compareSync(userPassword, db[user].password)) {
         let profile = db[user]
         return { error: null, profile }
       } else {
-        return { error: 'Error: 403, password or login was incorrect', user: null }
+        return { error: 'Password or login was incorrect', user: null }
       }
     }
   }
-  return { error: 'Error: 403, password or login was incorrect', user: null }
+  return { error: 'Password or login was incorrect', user: null }
 }
 
 const userExist = (db, userEmail) => {
