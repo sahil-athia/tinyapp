@@ -28,12 +28,6 @@ app.use(cookieParser())
 
 app.set("view engine", "ejs")
 
-
-
-app.get('/', (req, res) => {
-  res.send('Hello!')
-})
-
 // URLS_HOMEPAGE____________________________________________________________________________________________________
 
 app.get('/urls', (req, res) => {
@@ -51,7 +45,6 @@ app.post('/urls', (req, res) => {
   }
   
   urlDatabase[shortURL] = { longURL, userID: req.cookies.user_id }
-  console.log(urlDatabase)
   res.redirect(`/urls/${shortURL}`)
 })
 
@@ -122,10 +115,17 @@ app.get('/urls/new', (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   let longURL = req.body.longURL
-  if (!longURL.startsWith(`http://`) && !longURL.startsWith(`https://`) ){
-    longURL = `https://${longURL}`
+
+  if (urlDatabase[req.params.id].userID === req.cookies.user_id){
+    if (!longURL.startsWith(`http://`) && !longURL.startsWith(`https://`) ){
+      longURL = `https://${longURL}`
+    }
+    urlDatabase[req.params.id] = { longURL, userID: req.cookies.user_id}
+     // if the userid of the url does not match the current user the new url cant be created
+  } else {
+    res.send("ACTION NOT PERMITTED")
   }
-  urlDatabase[req.params.id] = { longURL, userID: req.cookies.user_id}
+    
   res.redirect("/urls");
 })
 
