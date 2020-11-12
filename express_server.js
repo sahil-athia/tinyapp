@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const { getUserByEmail, userLogin, generateRandomString, urlsForUser, idSearch } = require('./helpers');
 const app = express();
-const PORT  = 8080;
+const PORT = 8080;
 let possibleErrors = { e1: null, e2:null, e3:null };
 
 const users = {
@@ -56,10 +56,11 @@ app.get('/urls', (req, res) => {
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   let longURL = req.body.longURL;
+
   if (!longURL.startsWith(`http://`) && !longURL.startsWith(`https://`)) {
     longURL = `https://${longURL}`;
   }
-  
+  // attach the https so the shortURL redirect does not fail
   urlDatabase[shortURL] = { longURL, userID: req.session.user_id };
   res.redirect(`/urls/${shortURL}`);
 });
@@ -70,6 +71,7 @@ app.get('/register', (req, res) => {
   const user = users[req.session.user_id];
   const ownId = urlsForUser(urlDatabase, user);
   const templateVars = { user, ownId };
+
   res.render('urls_register', templateVars);
 });
 
@@ -84,11 +86,12 @@ app.post('/register', (req, res) => {
     res.status(400).render('urls_errors', possibleErrors);
   } else {
     const passwordHash = bcrypt.hashSync(password, 10); // hash the password enterd by user,
-    users[id] = { id, email, password: passwordHash };
+    users[id] = { id, email, password: passwordHash }; // create a new user in the database
     req.session['user_id'] = id;
     const ownId = urlsForUser(urlDatabase, id);
     const user = users[id];
     const templateVars = { ownId, user };
+
     res.render('urls_index', templateVars);
   }
 });
@@ -99,6 +102,7 @@ app.get('/login', (req, res) => {
   const user = users[req.session.user_id];
   const ownId = urlsForUser(urlDatabase, user);
   const templateVars = { ownId, user };
+  
   res.render("urls_login", templateVars);
 });
 
@@ -109,6 +113,7 @@ app.post('/login', (req, res) => {
   if (valid.error) {
     possibleErrors.e3 = true;
     res.status(403).render('urls_errors', possibleErrors);
+    // if either password or email dont match an error template will be shown
   } else {
     req.session['user_id'] = valid.profile.id;
     res.redirect("urls");
@@ -119,6 +124,7 @@ app.post('/login', (req, res) => {
 
 app.get('/logout', (req, res) => {
   req.session = null;
+  // clear cookies on logout
   res.redirect("urls");
 });
 
@@ -143,7 +149,9 @@ app.get('/urls/:id', (req, res) => {
   const longURL = urlDatabase[shortURL].longURL;
   const ownId = urlsForUser(urlDatabase, user);
   const templateVars = { shortURL, longURL, user, ownId };
-  const isUrlValid = idSearch(ownId, shortURL);
+  const isUrlValid = idSearch(ownId, shortURL); 
+  // will return false if the :id does not belong to the currently logged in user
+
   if (!user || !isUrlValid) {
     possibleErrors.e2 = true;
     res.status(401).render('urls_errors', possibleErrors);
@@ -154,16 +162,20 @@ app.get('/urls/:id', (req, res) => {
 app.post("/urls/:id", (req, res) => {
   let longURL = req.body.longURL;
   const user = users[req.session.user_id];
+
   if (!user) {
     possibleErrors.e2 = true;
     res.status(401).render('urls_errors', possibleErrors);
   }
   if (urlDatabase[req.params.id].userID === req.session.user_id) {
+    // if the userid of the url does not match the current user the new url cant be created
+    
     if (!longURL.startsWith(`http://`) && !longURL.startsWith(`https://`)) {
       longURL = `https://${longURL}`;
     }
+    // attach the https so the shortURL redirect does not fail  
+
     urlDatabase[req.params.id] = { longURL, userID: req.session.user_id };
-    // if the userid of the url does not match the current user the new url cant be created
   } else {
     res.send("ACTION NOT PERMITTED");
   }

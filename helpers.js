@@ -5,7 +5,7 @@ const generateRandomString = () => {
 };
 
 const userLogin = (db, userEmail, userPassword) => {
-  // userPassword is not hashed
+  // userPassword is not hashed, confirm both email and password match
   for (const user in db) {
     if (db[user].email === userEmail) {
       if (bcrypt.compareSync(userPassword, db[user].password)) {
@@ -30,6 +30,7 @@ const getUserByEmail = (db, userEmail) => {
 };
 
 const urlsForUser = (db, id) => {
+  // this function filters out the URLS that are not tied to unique user ID's
   let matchingUrls = {};
   if (id) {
     for (let urls in db) {
