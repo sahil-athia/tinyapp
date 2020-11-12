@@ -29,17 +29,15 @@
               <td><%= url %></td>
               <td><%= ownId[url].longURL %></td>
               <td><%= ownId[url].userID %></td>
-              <td><form method="GET" action="/urls/<%= url %>">
-                <button class="btn btn-outline-primary">
-                  Edit URL
-                </button>
-              </form>
+              <td>
+                <form method="GET" action="/urls/<%= url %>">
+                  <button class="btn btn-outline-primary"> Edit URL </button>
+                </form>
               </td>
-              <td><form method="POST" action="/urls/<%= url %>/delete">
-                    <button class="btn btn-outline-danger">
-                      Delete
-                    </button>
-                  </form>
+              <td>
+                <form method="POST" action="/urls/<%= url %>/delete">
+                  <button class="btn btn-outline-danger"> Delete </button>
+                </form>
               </td>
             </tr>
           <% } %>

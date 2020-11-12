@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href = "https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <title>ERROR</title>
+</head>
+
+<header>
+  <nav class="navbar navbar-expand-md navbar-dark bg-success">
+    <a class="nav-item nav-link" href="/register" style="color: black;">Register</a>
+    <a class="nav-item nav-link" href="/login" style="color: black;">Login</a>
+  </nav>
+</header>
+
+<body>
+  <% if(e1) { %> 
+    <div class="alert alert-danger" role="alert" style="text-align: center;">
+      <h4 class="alert-heading">ERROR!</h4>
+      <hr>
+        Please fill in the entire form, or login if you already have an account.
+      <hr>
+    </div>
+  <% } %> 
+
+  <% if(e2) { %> 
+    <div class="alert alert-danger" role="alert" style="text-align: center;">
+      <h4 class="alert-heading">ERROR!</h4>
+      <hr>
+        You do not have permission to access that.
+      <hr>
+    </div>
+  <% } %> 
+
+  <% if(e3) { %> 
+    <div class="alert alert-danger" role="alert" style="text-align: center;">
+      <h4 class="alert-heading">ERROR!</h4>
+      <hr>
+        Invalid username or password!
+      <hr>
+    </div>
+  <% } %> 
+  
+</body>
+</html>
