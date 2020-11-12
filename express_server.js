@@ -1,5 +1,5 @@
 const express = require('express');
-const cookieParser = require('cookie-parser')
+const cookieSession = require('cookie-session')
 const bodyParser = require('body-parser')
 const bcrypt = require('bcrypt')
 const { userExist, userLogin, generateRandomString, urlsForUser } = require('./helpers')
@@ -25,14 +25,19 @@ const urlDatabase = {
 }
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser())
+app.use(
+  cookieSession({
+    name: 'session',
+    keys: ['key1', 'key2'],
+  })
+);
 
 app.set("view engine", "ejs")
 
 // URLS_HOMEPAGE____________________________________________________________________________________________________
 
 app.get('/urls', (req, res) => {
-  const user = users[req.cookies.user_id]
+  const user = users[req.session.user_id]
   const ownId = urlsForUser(urlDatabase, user)
   const templateVars = { urls: urlDatabase, user, ownId}
   res.render("urls_index", templateVars)
@@ -45,14 +50,14 @@ app.post('/urls', (req, res) => {
     longURL = `https://${longURL}`
   }
   
-  urlDatabase[shortURL] = { longURL, userID: req.cookies.user_id }
+  urlDatabase[shortURL] = { longURL, userID: req.session.user_id }
   res.redirect(`/urls/${shortURL}`)
 })
 
 // REGISTER____________________________________________________________________________________________________
 
 app.get('/register', (req, res) => {
-  const user = users[req.cookies.user_id]
+  const user = users[req.session.user_id]
   const ownId = urlsForUser(urlDatabase, user)
   const templateVars = { user, ownId }
   res.render('urls_register', templateVars)
@@ -69,8 +74,7 @@ app.post('/register', (req, res) => {
   } else {
     const passwordHash = bcrypt.hashSync(password, 10); // hash the password enterd by user,
     users[id] = { id, email, password: passwordHash }
-    console.log(users[id])
-    res.cookie("user_id", id)
+    req.session['user_id'] = id
     const ownId = urlsForUser(urlDatabase, id)
     const user = users[id]
     const templateVars = { ownId, user }
@@ -81,7 +85,7 @@ app.post('/register', (req, res) => {
 // LOGIN_______________________________________________________________________________________________________
 
 app.get('/login', (req, res) => {
-  const user = users[req.cookies.user_id]
+  const user = users[req.session.user_id]
   const ownId = urlsForUser(urlDatabase, user)
   const templateVars = { ownId, user }
   res.render("urls_login", templateVars)
@@ -94,7 +98,7 @@ app.post('/login', (req, res) => {
   if(valid.error) {
     res.status(401).send(valid.error)
   } else {
-    res.cookie('user_id', valid.profile.id);
+    req.session['user_id'] = valid.profile.id
     res.redirect("urls")
   }
 })
@@ -102,14 +106,14 @@ app.post('/login', (req, res) => {
 // LOGOUT______________________________________________________________________________________________________
 
 app.get('/logout', (req, res) => {
-  res.clearCookie('user_id')
+  req.session = null;
   res.redirect("urls")
 })
 
 //NEW_URL______________________________________________________________________________________________________
 
 app.get('/urls/new', (req, res) => {
-  const user = users[req.cookies.user_id]
+  const user = users[req.session.user_id]
   const ownId = urlsForUser(urlDatabase, user)
   const templateVars = { ownId, user }
   res.render("urls_new", templateVars)
@@ -118,11 +122,11 @@ app.get('/urls/new', (req, res) => {
 app.post("/urls/:id", (req, res) => {
   let longURL = req.body.longURL
 
-  if (urlDatabase[req.params.id].userID === req.cookies.user_id){
+  if (urlDatabase[req.params.id].userID === req.session.user_id){
     if (!longURL.startsWith(`http://`) && !longURL.startsWith(`https://`) ){
       longURL = `https://${longURL}`
     }
-    urlDatabase[req.params.id] = { longURL, userID: req.cookies.user_id}
+    urlDatabase[req.params.id] = { longURL, userID: req.session.user_id}
      // if the userid of the url does not match the current user the new url cant be created
   } else {
     res.send("ACTION NOT PERMITTED")
@@ -141,7 +145,7 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const user = users[req.cookies.user_id]
+  const user = users[req.session.user_id]
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL
   const ownId = urlsForUser(urlDatabase, user)
@@ -154,7 +158,7 @@ app.get('/urls/:shortURL', (req, res) => {
 // DELETE_URL______________________________________________________________________________________________________
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  if (urlDatabase[req.params.shortURL].userID === req.cookies.user_id){
+  if (urlDatabase[req.params.shortURL].userID === req.session.user_id){
     delete urlDatabase[req.params.shortURL]
   } else {
     res.send("ACTION NOT PERMITTED")
