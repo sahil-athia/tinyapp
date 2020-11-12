@@ -169,7 +169,7 @@ app.post("/urls/:id", (req, res) => {
   }
   if (urlDatabase[req.params.id].userID === req.session.user_id) {
     // if the userid of the url does not match the current user the new url cant be created
-    
+
     if (!longURL.startsWith(`http://`) && !longURL.startsWith(`https://`)) {
       longURL = `https://${longURL}`;
     }
@@ -183,7 +183,7 @@ app.post("/urls/:id", (req, res) => {
   res.redirect("/urls");
 });
 
-//SHORT_URL_REDIRCECT__________________________________________________________________________________________
+//SHORT_URL_REDIRECT__________________________________________________________________________________________
 
 app.get("/u/:id", (req, res) => {
   const user = users[req.session.user_id];
@@ -194,7 +194,6 @@ app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
   const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
-  // redirects require a http:// in order to work.
 });
 
 // DELETE_URL__________________________________________________________________________________________________
