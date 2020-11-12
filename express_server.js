@@ -46,12 +46,12 @@ app.get('/urls', (req, res) => {
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString() 
   let longURL = req.body.longURL
-  console.log(longURL)
   if (!longURL.startsWith(`http://`) && !longURL.startsWith(`https://`) ){
     longURL = `https://${longURL}`
   }
   
-  urlDatabase[shortURL] = { longURL, userID: req.cookies.user_id}
+  urlDatabase[shortURL] = { longURL, userID: req.cookies.user_id }
+  console.log(urlDatabase)
   res.redirect(`/urls/${shortURL}`)
 })
 
@@ -122,13 +122,19 @@ app.get('/urls/new', (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   let longURL = req.body.longURL
-  console.log(longURL)
   if (!longURL.startsWith(`http://`) && !longURL.startsWith(`https://`) ){
     longURL = `https://${longURL}`
   }
   urlDatabase[req.params.id] = { longURL, userID: req.cookies.user_id}
   res.redirect("/urls");
 })
+
+app.get("/u/:id", (req, res) => {
+  const shortURL = req.params.id;
+  const longURL = urlDatabase[shortURL].longURL
+  res.redirect(longURL);
+  // redirects require a http:// in order to work.
+});
 
 app.get('/urls/:shortURL', (req, res) => {
   const user = users[req.cookies.user_id]
@@ -141,17 +147,12 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render("urls_show", templateVars)
 })
 
-app.get("/u/:id", (req, res) => {
-  const shortURL = req.params.id;
-  const longURL = urlDatabase[shortURL].longURL
-  res.redirect(longURL);
-  // redirects require a http:// in order to work.
-});
-
 app.post("/urls/:shortURL/delete", (req, res) => {
-  // console.log(urlDatabase[req.params.shortURL])
-  delete urlDatabase[req.params.shortURL]
-
+  if (urlDatabase[req.params.shortURL].userID === req.cookies.user_id){
+    delete urlDatabase[req.params.shortURL]
+  } else {
+    res.send("ACTION NOT PERMITTED")
+  }
   res.redirect("/urls")
 })
 
