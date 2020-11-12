@@ -19,14 +19,14 @@ const userLogin = (db, userEmail, userPassword) => {
   return { error: 'Password or login was incorrect', user: null }
 }
 
-const userExist = (db, userEmail) => {
+const getUserByEmail = (db, userEmail) => {
   for (const user in db) {
     if (db[user].email === userEmail) {
-      let profile = db[user]
-      return { error: null, profile, }
+      const profile = db[user]
+      return profile
     }
   }
-  return { error: 'email', user: null }
+  return undefined 
 }
 
 const urlsForUser = (db, id) => {
@@ -41,4 +41,4 @@ const urlsForUser = (db, id) => {
   }  
 }
 
-module.exports = { userExist, userLogin, generateRandomString, urlsForUser }
+module.exports = { getUserByEmail, userLogin, generateRandomString, urlsForUser }

@@ -2,7 +2,7 @@ const express = require('express');
 const cookieSession = require('cookie-session')
 const bodyParser = require('body-parser')
 const bcrypt = require('bcrypt')
-const { userExist, userLogin, generateRandomString, urlsForUser } = require('./helpers')
+const { getUserByEmail, userLogin, generateRandomString, urlsForUser } = require('./helpers')
 const app = express();
 const PORT  = 8080;
 
@@ -66,9 +66,9 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   const id = generateRandomString()
   const {email, password} = req.body
-  const validUser = userExist(users, email)
+  const validUser = getUserByEmail(users, email)
 
-  if (!email || !password || !validUser.error) {
+  if (!email || !password || validUser) {
     // if the register template is empty in either fields or email exists, throw 400
     res.send('Error: 400')
   } else {
