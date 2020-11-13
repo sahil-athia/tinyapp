@@ -72,6 +72,11 @@ app.get('/register', (req, res) => {
   const ownId = urlsForUser(urlDatabase, user);
   const templateVars = { user, ownId };
 
+  if (user) {
+    res.redirect('/urls');
+  }
+  // if user is logged in show urls not register page
+
   res.render('urls_register', templateVars);
 });
 
@@ -81,18 +86,15 @@ app.post('/register', (req, res) => {
   const validUser = getUserByEmail(users, email);
 
   if (!email || !password || validUser) {
-    // if the register template is empty in either fields or email exists, throw 400
+    // if the register template is empty in either fields or email exists, throw 400 status error
     possibleErrors.e1 = true;
     res.status(400).render('urls_errors', possibleErrors);
   } else {
     const passwordHash = bcrypt.hashSync(password, 10); // hash the password enterd by user,
     users[id] = { id, email, password: passwordHash }; // create a new user in the database
     req.session['user_id'] = id;
-    const ownId = urlsForUser(urlDatabase, id);
-    const user = users[id];
-    const templateVars = { ownId, user };
 
-    res.render('urls_index', templateVars);
+    res.redirect('/urls')
   }
 });
 
@@ -103,6 +105,11 @@ app.get('/login', (req, res) => {
   const ownId = urlsForUser(urlDatabase, user);
   const templateVars = { ownId, user };
   
+  if (user) {
+    res.redirect('/urls');
+  }
+  // if user is logged in show urls not login page
+
   res.render("urls_login", templateVars);
 });
 
@@ -147,7 +154,7 @@ app.get('/urls/:id', (req, res) => {
   const shortURL = req.params.id;
   const ownId = urlsForUser(urlDatabase, user);
   const isUrlValid = idSearch(urlDatabase, shortURL);
-  const isUrlValidToUser = idSearch(ownId, shortURL); 
+  const isUrlValidToUser = idSearch(ownId, shortURL);
   // will return false if the :id does not belong to the currently logged in user or exist at all
 
   if (!user || !isUrlValidToUser || !isUrlValid) {
@@ -177,7 +184,7 @@ app.post("/urls/:id", (req, res) => {
     if (!longURL.startsWith(`http://`) && !longURL.startsWith(`https://`)) {
       longURL = `https://${longURL}`;
     }
-    // attach the https so the shortURL redirect does not fail  
+    // attach the https so the shortURL redirect does not fail
 
     urlDatabase[req.params.id] = { longURL, userID: req.session.user_id };
   } else {
@@ -191,11 +198,15 @@ app.post("/urls/:id", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   const user = users[req.session.user_id];
-  if (!user) {
+  const shortURL = req.params.id;
+  const isUrlValid = idSearch(urlDatabase, shortURL);
+
+  if (!user || !isUrlValid) {
     possibleErrors.e2 = true;
     res.status(401).render('urls_errors', possibleErrors);
   }
-  const shortURL = req.params.id;
+  // if the user is not logged in or if the short url does not exist, show error page
+
   const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 });
@@ -206,7 +217,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
   } else {
-    res.send("ACTION NOT PERMITTED");
+    possibleErrors.e2 = true;
+    res.status(401).render('urls_errors', possibleErrors);
   }
   res.redirect("/urls");
 });
