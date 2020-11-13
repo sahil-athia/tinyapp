@@ -136,8 +136,7 @@ app.get('/urls/new', (req, res) => {
   const templateVars = { ownId, user };
 
   if (!user) {
-    possibleErrors.e2 = true;
-    res.status(401).render('urls_errors', possibleErrors);
+    res.redirect('/login');
   }
 
   res.render("urls_new", templateVars);
@@ -146,16 +145,21 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls/:id', (req, res) => {
   const user = users[req.session.user_id];
   const shortURL = req.params.id;
-  const longURL = urlDatabase[shortURL].longURL;
   const ownId = urlsForUser(urlDatabase, user);
-  const templateVars = { shortURL, longURL, user, ownId };
-  const isUrlValid = idSearch(ownId, shortURL); 
-  // will return false if the :id does not belong to the currently logged in user
+  const isUrlValid = idSearch(urlDatabase, shortURL);
+  const isUrlValidToUser = idSearch(ownId, shortURL); 
+  // will return false if the :id does not belong to the currently logged in user or exist at all
 
-  if (!user || !isUrlValid) {
+  if (!user || !isUrlValidToUser || !isUrlValid) {
+    // shows custom error page for corresponding error
     possibleErrors.e2 = true;
     res.status(401).render('urls_errors', possibleErrors);
   }
+
+  const longURL = urlDatabase[shortURL].longURL;
+  const templateVars = { shortURL, longURL, user, ownId };
+  // set vaiables after error checks to avoid TypeErrors
+
   res.render("urls_show", templateVars);
 });
 
