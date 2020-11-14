@@ -11,6 +11,7 @@
   <body>
     <%- include('partials/_header') %>
     <main style = "margin: 1em">
+      <% if(user) { %> 
       <h3>My URLs</h3>
       <table class="table">
         <thead>
@@ -23,12 +24,12 @@
           </tr>
         </thead>
         <tbody>
-          <% if(user) { %> 
-          <% for(let url in ownId) { %>
+          
+          <% for(let url in usersUrls) { %>
             <tr>
-              <td><%= url %></td>
-              <td><%= ownId[url].longURL %></td>
-              <td><%= ownId[url].userID %></td>
+              <td><a href="/u/<%= url %>"><%= url %></a></td>
+              <td><%= usersUrls[url].longURL %></td>
+              <td><%= usersUrls[url].userID %></td>
               <td>
                 <form method="GET" action="/urls/<%= url %>">
                   <button class="btn btn-outline-primary"> Edit URL </button>
@@ -42,7 +43,12 @@
             </tr>
           <% } %>
           <% } else { %> 
-          <h3>Please login or register to view urls</h3>  
+            <div class="alert alert-danger" role="alert" style="text-align: center;">
+              <h4 class="alert-heading">ERROR!</h4>
+              <hr>
+                Please login or register to view urls
+              <hr>
+            </div> 
           <% } %> 
         </tbody>
       </table>
