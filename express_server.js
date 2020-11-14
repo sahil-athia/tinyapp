@@ -55,9 +55,16 @@ app.get('/urls', (req, res) => {
 
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
+  const user = users[req.session.user_id];
   let longURL = req.body.longURL;
   longURL = addHttp(longURL);
   // attach the https so the shortURL redirect does not fail
+
+  if (!user){
+    possibleErrors = { e1: true, e2:null, e3:null };
+    res.status(400).render('urls_errors', possibleErrors);
+  }
+
   urlDatabase[shortURL] = { longURL, userID: req.session.user_id };
   res.redirect(`/urls/${shortURL}`);
 });
@@ -91,7 +98,7 @@ app.post('/register', (req, res) => {
     users[id] = { id, email, password: passwordHash }; // create a new user in the database
     req.session['user_id'] = id;
 
-    res.redirect('/urls')
+    res.redirect('/urls');
   }
 });
 
