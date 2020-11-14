@@ -2,7 +2,7 @@ const express = require('express');
 const cookieSession = require('cookie-session');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-const { getUserByEmail, userLogin, generateRandomString, urlsForUser, idSearch } = require('./helpers');
+const { getUserByEmail, userLogin, generateRandomString, urlsForUser, idSearch, addHttp } = require('./helpers');
 const app = express();
 const PORT = 8080;
 let possibleErrors = { e1: null, e2:null, e3:null };
@@ -48,18 +48,15 @@ app.get('/', (req, res) => {
 
 app.get('/urls', (req, res) => {
   const user = users[req.session.user_id];
-  const ownId = urlsForUser(urlDatabase, user);
-  const templateVars = { urls: urlDatabase, user, ownId };
+  const usersUrls = urlsForUser(urlDatabase, user);
+  const templateVars = { urls: urlDatabase, user, usersUrls };
   res.render("urls_index", templateVars);
 });
 
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   let longURL = req.body.longURL;
-
-  if (!longURL.startsWith(`http://`) && !longURL.startsWith(`https://`)) {
-    longURL = `https://${longURL}`;
-  }
+  longURL = addHttp(longURL);
   // attach the https so the shortURL redirect does not fail
   urlDatabase[shortURL] = { longURL, userID: req.session.user_id };
   res.redirect(`/urls/${shortURL}`);
@@ -69,8 +66,8 @@ app.post('/urls', (req, res) => {
 
 app.get('/register', (req, res) => {
   const user = users[req.session.user_id];
-  const ownId = urlsForUser(urlDatabase, user);
-  const templateVars = { user, ownId };
+  const usersUrls = urlsForUser(urlDatabase, user);
+  const templateVars = { user, usersUrls };
 
   if (user) {
     res.redirect('/urls');
@@ -87,7 +84,7 @@ app.post('/register', (req, res) => {
 
   if (!email || !password || validUser) {
     // if the register template is empty in either fields or email exists, throw 400 status error
-    possibleErrors.e1 = true;
+    possibleErrors = { e1: true, e2:null, e3:null };
     res.status(400).render('urls_errors', possibleErrors);
   } else {
     const passwordHash = bcrypt.hashSync(password, 10); // hash the password enterd by user,
@@ -102,8 +99,8 @@ app.post('/register', (req, res) => {
 
 app.get('/login', (req, res) => {
   const user = users[req.session.user_id];
-  const ownId = urlsForUser(urlDatabase, user);
-  const templateVars = { ownId, user };
+  const usersUrls = urlsForUser(urlDatabase, user);
+  const templateVars = { usersUrls, user };
   
   if (user) {
     res.redirect('/urls');
@@ -118,7 +115,7 @@ app.post('/login', (req, res) => {
   const valid = userLogin(users, email, password);
 
   if (valid.error) {
-    possibleErrors.e3 = true;
+    possibleErrors = { e1: null, e2:null, e3:true }
     res.status(403).render('urls_errors', possibleErrors);
     // if either password or email dont match an error template will be shown
   } else {
@@ -139,8 +136,8 @@ app.get('/logout', (req, res) => {
 
 app.get('/urls/new', (req, res) => {
   const user = users[req.session.user_id];
-  const ownId = urlsForUser(urlDatabase, user);
-  const templateVars = { ownId, user };
+  const usersUrls = urlsForUser(urlDatabase, user);
+  const templateVars = { usersUrls, user };
 
   if (!user) {
     res.redirect('/login');
@@ -152,19 +149,19 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls/:id', (req, res) => {
   const user = users[req.session.user_id];
   const shortURL = req.params.id;
-  const ownId = urlsForUser(urlDatabase, user);
+  const usersUrls = urlsForUser(urlDatabase, user);
   const isUrlValid = idSearch(urlDatabase, shortURL);
-  const isUrlValidToUser = idSearch(ownId, shortURL);
+  const isUrlValidToUser = idSearch(usersUrls, shortURL);
   // will return false if the :id does not belong to the currently logged in user or exist at all
 
   if (!user || !isUrlValidToUser || !isUrlValid) {
     // shows custom error page for corresponding error
-    possibleErrors.e2 = true;
+    possibleErrors = { e1: null, e2:true, e3:null };
     res.status(401).render('urls_errors', possibleErrors);
   }
 
   const longURL = urlDatabase[shortURL].longURL;
-  const templateVars = { shortURL, longURL, user, ownId };
+  const templateVars = { shortURL, longURL, user, usersUrls };
   // set vaiables after error checks to avoid TypeErrors
 
   res.render("urls_show", templateVars);
@@ -175,15 +172,13 @@ app.post("/urls/:id", (req, res) => {
   const user = users[req.session.user_id];
 
   if (!user) {
-    possibleErrors.e2 = true;
+    possibleErrors = { e1: null, e2:true, e3:null };
     res.status(401).render('urls_errors', possibleErrors);
   }
   if (urlDatabase[req.params.id].userID === req.session.user_id) {
     // if the userid of the url does not match the current user the new url cant be created
 
-    if (!longURL.startsWith(`http://`) && !longURL.startsWith(`https://`)) {
-      longURL = `https://${longURL}`;
-    }
+    longURL = addHttp(longURL);
     // attach the https so the shortURL redirect does not fail
 
     urlDatabase[req.params.id] = { longURL, userID: req.session.user_id };
@@ -202,13 +197,14 @@ app.get("/u/:id", (req, res) => {
   const isUrlValid = idSearch(urlDatabase, shortURL);
 
   if (!user || !isUrlValid) {
-    possibleErrors.e2 = true;
+    possibleErrors = { e1: null, e2:'stayLogged', e3:null, user };
     res.status(401).render('urls_errors', possibleErrors);
+  } else if (user && isUrlValid) {
+    const longURL = urlDatabase[shortURL].longURL;
+    res.redirect(longURL);
   }
   // if the user is not logged in or if the short url does not exist, show error page
 
-  const longURL = urlDatabase[shortURL].longURL;
-  res.redirect(longURL);
 });
 
 // DELETE_URL__________________________________________________________________________________________________
@@ -217,7 +213,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
   } else {
-    possibleErrors.e2 = true;
+    possibleErrors  = { e1: null, e2:true, e3:null };
     res.status(401).render('urls_errors', possibleErrors);
   }
   res.redirect("/urls");
