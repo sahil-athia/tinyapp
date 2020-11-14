@@ -6,16 +6,18 @@
   <link rel="stylesheet" href = "https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>ERROR</title>
 </head>
-
-<header>
-  <nav class="navbar navbar-expand-md navbar-dark bg-success">
-    <a class="nav-item nav-link" href="/register" style="color: black;">Register</a>
-    <a class="nav-item nav-link" href="/login" style="color: black;">Login</a>
-  </nav>
-</header>
+<% if(e2 !== 'stayLogged') { %>
+  <header>
+    <nav class="navbar navbar-expand-md navbar-dark bg-success">
+      <a class="nav-item nav-link" href="/register" style="color: black;">Register</a>
+      <a class="nav-item nav-link" href="/login" style="color: black;">Login</a>
+    </nav>
+  </header>
+<% } %> 
 
 <body>
-  <% if(e1) { %> 
+
+  <% if(e1 === true) { %> 
     <div class="alert alert-danger" role="alert" style="text-align: center;">
       <h4 class="alert-heading">ERROR!</h4>
       <hr>
@@ -24,7 +26,7 @@
     </div>
   <% } %> 
 
-  <% if(e2) { %> 
+  <% if(e2 === true) { %> 
     <div class="alert alert-danger" role="alert" style="text-align: center;">
       <h4 class="alert-heading">ERROR!</h4>
       <hr>
@@ -33,7 +35,17 @@
     </div>
   <% } %> 
 
-  <% if(e3) { %> 
+  <% if(e2 === 'stayLogged') { %> 
+    <%- include('partials/_header') %>
+    <div class="alert alert-danger" role="alert" style="text-align: center;">
+      <h4 class="alert-heading">ERROR!</h4>
+      <hr>
+      You do not have permission to access that.
+      <hr>
+    </div>
+  <% } %>
+
+  <% if(e3 === true) { %> 
     <div class="alert alert-danger" role="alert" style="text-align: center;">
       <h4 class="alert-heading">ERROR!</h4>
       <hr>
@@ -41,6 +53,8 @@
       <hr>
     </div>
   <% } %> 
+
+  
   
 </body>
 </html>
