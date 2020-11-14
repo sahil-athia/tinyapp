@@ -52,4 +52,13 @@ const idSearch = (matchingUrls, shortURL) => {
   return false;
 };
 
-module.exports = { getUserByEmail, userLogin, generateRandomString, urlsForUser, idSearch };
+
+const addHttp = (url) => {
+  if (!url.startsWith(`http://`) && !url.startsWith(`https://`)) {
+    return url = `https://${url}`;
+  } else {
+    return url;
+  }
+};
+
+module.exports = { getUserByEmail, userLogin, generateRandomString, urlsForUser, idSearch, addHttp };
