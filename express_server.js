@@ -177,7 +177,7 @@ app.get('/urls/:id', (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.post("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   let longURL = req.body.longURL;
   const user = users[req.session.user_id];
 
