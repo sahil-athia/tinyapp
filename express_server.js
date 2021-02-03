@@ -1,9 +1,11 @@
 const express = require('express');
+const methodOverride = require('method-override')
 const cookieSession = require('cookie-session');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const { getUserByEmail, userLogin, generateRandomString, urlsForUser, idSearch, addHttp } = require('./helpers');
 const app = express();
+
 const PORT = 8080;
 let possibleErrors = { e1: null, e2:null, e3:null };
 
@@ -25,6 +27,7 @@ const urlDatabase = {
   "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID"}
 };
 
+app.use(methodOverride('_method'))
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(
   cookieSession({
@@ -216,7 +219,7 @@ app.get("/u/:id", (req, res) => {
 
 // DELETE_URL__________________________________________________________________________________________________
 
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL/delete", (req, res) => {
   if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
   } else {
